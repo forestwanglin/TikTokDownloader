@@ -6,3 +6,6 @@ __pycache__/
 /.run/
 /Volume/
 !/.github/
+
+# Local environment config (not tracked in git)
+.env

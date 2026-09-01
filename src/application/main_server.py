@@ -33,6 +33,7 @@ from ..models import (
     UserSearch,
     VideoSearch,
 )
+from ..storage.spider_repository import SpiderDouyinRepository
 from ..translation import _
 from .main_terminal import TikTok
 
@@ -91,6 +92,10 @@ class APIServer(TikTok):
             version=__VERSION__,
         )
         self.setup_routes()
+        self._setup_spider_routes()
+        # 启动后台 Worker
+        self._crawl_worker = None
+        self._setup_crawl_worker()
         config = Config(
             self.server,
             host=host,
@@ -98,7 +103,22 @@ class APIServer(TikTok):
             log_level=log_level,
         )
         server = Server(config)
+
+        # 启动后台 Worker 协程
+        if self._crawl_worker:
+            import asyncio
+
+            worker_task = asyncio.create_task(self._crawl_worker.start())
+        else:
+            worker_task = None
+
         await server.serve()
+
+        # 清理
+        if self._crawl_worker:
+            await self._crawl_worker.stop()
+            if worker_task:
+                worker_task.cancel()
 
     def setup_routes(self):
         @self.server.get(
@@ -759,3 +779,48 @@ class APIServer(TikTok):
             "live",
             tiktok=tiktok,
         )
+
+    def _setup_spider_routes(self):
+        """注册 Spider_XHS 兼容的 API 端点。"""
+        try:
+            from .spider_api import setup_spider_routes
+
+            # 从 Parameter 获取 MySQL 连接参数
+            mysql_host = getattr(self.parameter, "mysql_host", "127.0.0.1")
+            mysql_port = getattr(self.parameter, "mysql_port", 3306)
+            mysql_user = getattr(self.parameter, "mysql_user", "root")
+            mysql_password = getattr(self.parameter, "mysql_password", "")
+            mysql_database = getattr(self.parameter, "mysql_database", "spider_douyin")
+
+            self._spider_repository = SpiderDouyinRepository(
+                host=mysql_host,
+                port=mysql_port,
+                user=mysql_user,
+                password=mysql_password,
+                database=mysql_database,
+            )
+
+            setup_spider_routes(
+                server=self.server,
+                repository=self._spider_repository,
+                parameter=self.parameter,
+                database=self.database if hasattr(self, "database") else None,
+            )
+        except Exception:
+            # Spider API 初始化失败不影响核心功能
+            self.console.warning("Spider API 未启用（MySQL 未配置或连接失败）")
+
+    def _setup_crawl_worker(self):
+        """启动后台爬取 Worker。"""
+        try:
+            from .crawl_worker import CrawlWorker
+
+            self._crawl_worker = CrawlWorker(
+                repository=self._spider_repository,
+                tiktok_instance=self,  # APIServer 继承自 TikTok，有爬虫方法
+                poll_interval=5,
+                batch_size=5,
+            )
+        except Exception:
+            self.console.warning("Crawl Worker 未启用")
+            self._crawl_worker = None

@@ -1,9 +1,14 @@
 from json import dump, load
 from json.decoder import JSONDecodeError
+from os import environ
+from pathlib import Path
 from platform import system
+from re import compile as re_compile
 from shutil import move
 from types import SimpleNamespace
 from typing import TYPE_CHECKING
+
+from dotenv import load_dotenv
 
 from ..custom import IMPERSONATE
 from ..translation import _
@@ -168,13 +173,55 @@ class Settings:
         try:
             if self.path.exists():
                 with self.path.open("r", encoding=self.encode) as f:
-                    return self.__check(load(f))
-            return self.__create()  # 生成的默认配置文件必须设置 cookie 才可以正常运行
+                    data = self.__check(load(f))
+            else:
+                data = self.__create()
         except JSONDecodeError:
             self.console.error(
                 _("配置文件 settings.json 格式错误，请检查 JSON 格式！"),
             )
-            return self.default  # 读取配置文件发生错误时返回空配置
+            data = dict(self.default)
+
+        # 从 .env 覆盖 MySQL 相关配置（环境变量优先级高于 settings.json）
+        data = self._merge_env(data)
+        return data
+
+    @staticmethod
+    def _parse_database_url(url: str) -> dict | None:
+        """解析 DATABASE_URL 连接字符串，提取 MySQL 参数。
+
+        格式: mysql+aiomysql://user:password@host:port/database
+        返回: {"mysql_host", "mysql_port", "mysql_user", "mysql_password", "mysql_database"}
+        """
+        pattern = re_compile(
+            r"mysql\+aiomysql://(?P<user>[^:]+):(?P<password>[^@]*)@(?P<host>[^:]+):(?P<port>\d+)/(?P<database>\w+)"
+        )
+        if match := pattern.match(url):
+            return {
+                "mysql_host": match.group("host"),
+                "mysql_port": int(match.group("port")),
+                "mysql_user": match.group("user"),
+                "mysql_password": match.group("password"),
+                "mysql_database": match.group("database"),
+            }
+        return None
+
+    def _merge_env(self, data: dict) -> dict:
+        """从 .env 加载 DATABASE_URL 并覆盖 settings.json 值。"""
+        env_path = self.root.joinpath(".env")
+        if env_path.is_file():
+            load_dotenv(env_path)
+
+        if url := environ.get("DATABASE_URL"):
+            parsed = self._parse_database_url(url)
+            if parsed:
+                for key, value in parsed.items():
+                    data[key] = value
+            else:
+                self.console.warning(
+                    f"DATABASE_URL 格式无效，应形如 mysql+aiomysql://user:pass@host:port/db"
+                )
+        return data
 
     def __check(self, data: dict) -> dict:
         data = self.__compatible_with_old_settings(data)

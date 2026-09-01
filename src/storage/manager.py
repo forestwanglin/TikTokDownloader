@@ -2,6 +2,7 @@ from shutil import move
 from typing import TYPE_CHECKING
 
 from .csv import CSVLogger
+from .mysql import MySQLLogger
 from .sqlite import SQLLogger
 from .text import BaseTextLogger
 from .xlsx import XLSXLogger
@@ -612,7 +613,7 @@ class RecordManager:
         "csv": CSVLogger,
         "xlsx": XLSXLogger,
         "sql": SQLLogger,
-        # "mysql": BaseTextLogger,
+        "mysql": MySQLLogger,
     }
 
     def run(

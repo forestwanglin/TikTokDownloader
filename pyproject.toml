@@ -22,6 +22,8 @@ dependencies = [
     "pyperclip>=1.11.0",
     "rich>=15.0.0",
     "uvicorn>=0.52.4",
+    "aiomysql>=0.2.0",
+    "python-dotenv>=1.0.1",
 ]
 
 [project.urls]

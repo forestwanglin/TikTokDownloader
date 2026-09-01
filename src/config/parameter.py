@@ -113,6 +113,12 @@ class Parameter:
         timeout=10,
         douyin_platform=True,
         tiktok_platform=True,
+        # MySQL 连接参数
+        mysql_host: str = "127.0.0.1",
+        mysql_port: int = 3306,
+        mysql_user: str = "root",
+        mysql_password: str = "",
+        mysql_database: str = "DouK-Downloader",
         **kwargs,
     ):
         self.settings = settings
@@ -190,6 +196,12 @@ class Parameter:
         self.tiktok_platform = self.check_bool_true(
             tiktok_platform,
         )
+        # MySQL 连接参数
+        self.mysql_host = self.__check_str(mysql_host)
+        self.mysql_port = self.__check_int(mysql_port)
+        self.mysql_user = self.__check_str(mysql_user)
+        self.mysql_password = self.__check_str(mysql_password)
+        self.mysql_database = self.__check_str(mysql_database)
 
         self.impersonate = browser_info.pop(
             "impersonate",
@@ -266,6 +278,11 @@ class Parameter:
             "original_quality": self.check_bool_false,
             "douyin_platform": self.check_bool_true,
             "tiktok_platform": self.check_bool_true,
+            "mysql_host": self.__check_str,
+            "mysql_port": self.__check_int,
+            "mysql_user": self.__check_str,
+            "mysql_password": self.__check_str,
+            "mysql_database": self.__check_str,
         }
         # self.__BROWSER_INFO = {
         #     "browser_info": None,
@@ -573,6 +590,10 @@ class Parameter:
         return ""
 
     @staticmethod
+    def __check_int(value: int) -> int:
+        return int(value)
+
+    @staticmethod
     def __check_run_command(run_command: str) -> list:
         return run_command.split()[::-1] if run_command else []
 
@@ -869,6 +890,11 @@ class Parameter:
             "run_command": " ".join(self.run_command[::-1]),
             "ffmpeg": self.ffmpeg.path or "",
             "original_quality": self.original_quality,
+            "mysql_host": self.mysql_host,
+            "mysql_port": self.mysql_port,
+            "mysql_user": self.mysql_user,
+            "mysql_password": self.mysql_password,
+            "mysql_database": self.mysql_database,
         }
 
     async def set_settings_data(

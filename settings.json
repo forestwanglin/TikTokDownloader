@@ -1,0 +1,107 @@
+{
+    "accounts_urls": [
+        {
+            "mark": "",
+            "url": "",
+            "tab": "",
+            "earliest": "",
+            "latest": "",
+            "enable": true
+        }
+    ],
+    "accounts_urls_tiktok": [
+        {
+            "mark": "",
+            "url": "",
+            "tab": "",
+            "earliest": "",
+            "latest": "",
+            "enable": true
+        }
+    ],
+    "mix_urls": [
+        {
+            "mark": "",
+            "url": "",
+            "enable": true
+        }
+    ],
+    "mix_urls_tiktok": [
+        {
+            "mark": "",
+            "url": "",
+            "enable": true
+        }
+    ],
+    "owner_url": {
+        "mark": "",
+        "url": "",
+        "uid": "",
+        "sec_uid": "",
+        "nickname": ""
+    },
+    "owner_url_tiktok": null,
+    "root": "",
+    "folder_name": "Download",
+    "name_format": "create_time type nickname desc",
+    "desc_length": 64,
+    "name_length": 128,
+    "date_format": "%Y-%m-%d %H:%M:%S",
+    "split": "-",
+    "folder_mode": false,
+    "music": false,
+    "truncate": 50,
+    "storage_format": "",
+    "cookie": "",
+    "cookie_tiktok": "",
+    "dynamic_cover": false,
+    "static_cover": false,
+    "proxy": "",
+    "proxy_tiktok": "",
+    "twc_tiktok": "",
+    "download": true,
+    "max_size": 0,
+    "chunk": 2097152,
+    "timeout": 10,
+    "max_retry": 5,
+    "max_pages": 0,
+    "run_command": "",
+    "ffmpeg": "",
+    "live_qualities": "",
+    "original_quality": false,
+    "douyin_platform": true,
+    "tiktok_platform": true,
+    "browser_info": {
+        "impersonate": "chrome146",
+        "pc_libra_divert": "Mac",
+        "browser_language": "zh-CN",
+        "browser_platform": "MacIntel",
+        "browser_name": "Chrome",
+        "browser_version": "146.0.0.0",
+        "engine_name": "Blink",
+        "engine_version": "146.0.0.0",
+        "os_name": "Mac OS",
+        "os_version": "10.15.7",
+        "webid": ""
+    },
+    "browser_info_tiktok": {
+        "impersonate": "chrome146",
+        "app_language": "zh-Hans",
+        "browser_language": "zh-CN",
+        "browser_name": "Mozilla",
+        "browser_platform": "MacIntel",
+        "browser_version": "5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36",
+        "language": "zh-Hans",
+        "os": "mac",
+        "priority_region": "US",
+        "region": "US",
+        "tz_name": "Asia/Shanghai",
+        "webcast_language": "zh-Hans",
+        "device_id": ""
+    },
+    "mysql_host": "127.0.0.1",
+    "mysql_port": "3306",
+    "mysql_user": "root",
+    "mysql_password": "",
+    "mysql_database": "spider_douyin"
+}
