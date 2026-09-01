@@ -15,7 +15,7 @@ class SpiderDouyinRepository:
         port: int = 3306,
         user: str = "root",
         password: str = "",
-        database: str = "spider_douyin",
+        database: str = "spider_tiktok",
     ):
         self._pool: Any | None = None
         self._host = host
@@ -73,7 +73,7 @@ class SpiderDouyinRepository:
                     kw = f"%{keyword}%"
                     params.extend([kw, kw, kw])
 
-                count_sql = "SELECT COUNT(*) FROM `spider_douyin_note` WHERE " + " AND ".join(
+                count_sql = "SELECT COUNT(*) FROM `spider_tiktok_note` WHERE " + " AND ".join(
                     where_clauses
                 )
                 await cursor.execute(count_sql, params)
@@ -89,7 +89,7 @@ class SpiderDouyinRepository:
 
                 offset = max(0, (page - 1) * page_size)
                 query_sql = (
-                    f"SELECT * FROM `spider_douyin_note` "
+                    f"SELECT * FROM `spider_tiktok_note` "
                     f"WHERE {' AND '.join(where_clauses)} "
                     f"ORDER BY {order} LIMIT %s OFFSET %s"
                 )
@@ -118,7 +118,7 @@ class SpiderDouyinRepository:
             cursor = await conn.cursor()
             try:
                 await cursor.execute(
-                    "SELECT * FROM `spider_douyin_note` WHERE `note_id` = %s",
+                    "SELECT * FROM `spider_tiktok_note` WHERE `note_id` = %s",
                     (note_id,),
                 )
                 row = await cursor.fetchone()
@@ -146,7 +146,7 @@ class SpiderDouyinRepository:
             try:
                 placeholders = ", ".join(["%s"] * len(note_ids))
                 await cursor.execute(
-                    f"SELECT * FROM `spider_douyin_note` WHERE `note_id` IN ({placeholders})",
+                    f"SELECT * FROM `spider_tiktok_note` WHERE `note_id` IN ({placeholders})",
                     note_ids,
                 )
                 columns = [desc[0] for desc in cursor.description]
@@ -178,7 +178,7 @@ class SpiderDouyinRepository:
         placeholders = ", ".join(f"%s" for _ in fields)
         updates = ", ".join(f"`{f}`=VALUES(`{f}`)" for f in fields)
         sql = (
-            f"INSERT INTO `spider_douyin_note` ({columns}) "
+            f"INSERT INTO `spider_tiktok_note` ({columns}) "
             f"VALUES ({placeholders}) "
             f"ON DUPLICATE KEY UPDATE {updates}"
         )
@@ -215,14 +215,14 @@ class SpiderDouyinRepository:
             cursor = await conn.cursor()
             try:
                 await cursor.execute(
-                    "SELECT COUNT(*) FROM `spider_douyin_note_snapshot` WHERE `crawl_task_id` = %s",
+                    "SELECT COUNT(*) FROM `spider_tiktok_note_snapshot` WHERE `crawl_task_id` = %s",
                     (crawl_task_id,),
                 )
                 total = (await cursor.fetchone())[0]
 
                 offset = max(0, (page - 1) * page_size)
                 await cursor.execute(
-                    "SELECT * FROM `spider_douyin_note_snapshot` "
+                    "SELECT * FROM `spider_tiktok_note_snapshot` "
                     "WHERE `crawl_task_id` = %s ORDER BY crawl_time DESC LIMIT %s OFFSET %s",
                     (crawl_task_id, page_size, offset),
                 )
@@ -247,7 +247,7 @@ class SpiderDouyinRepository:
                         SUM(collected_count) as total_collected,
                         MIN(crawl_time) as first_crawl,
                         MAX(crawl_time) as last_crawl
-                    FROM `spider_douyin_note_snapshot`
+                    FROM `spider_tiktok_note_snapshot`
                     WHERE `crawl_task_id` = %s""",
                     (crawl_task_id,),
                 )
@@ -266,18 +266,18 @@ class SpiderDouyinRepository:
             try:
                 today = datetime.now().strftime("%Y-%m-%d")
                 await cursor.execute(
-                    "SELECT COUNT(*) FROM `spider_douyin_note`"
+                    "SELECT COUNT(*) FROM `spider_tiktok_note`"
                 )
                 total_notes = (await cursor.fetchone())[0]
 
                 await cursor.execute(
-                    "SELECT COUNT(*) FROM `spider_douyin_note` "
+                    "SELECT COUNT(*) FROM `spider_tiktok_note` "
                     "WHERE DATE(created_at) = %s", (today,)
                 )
                 today_new = (await cursor.fetchone())[0]
 
                 await cursor.execute(
-                    "SELECT COUNT(*) FROM `spider_douyin_note` "
+                    "SELECT COUNT(*) FROM `spider_tiktok_note` "
                     "WHERE DATE(updated_at) = %s AND updated_at IS NOT NULL", (today,)
                 )
                 today_updated = (await cursor.fetchone())[0]
@@ -297,7 +297,7 @@ class SpiderDouyinRepository:
             try:
                 await cursor.execute(
                     """SELECT DATE(created_at) as day, COUNT(*) as count
-                       FROM `spider_douyin_note`
+                       FROM `spider_tiktok_note`
                        WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL %s DAY)
                        GROUP BY DATE(created_at)
                        ORDER BY day"""
@@ -320,7 +320,7 @@ class SpiderDouyinRepository:
             try:
                 import json
                 await cursor.execute(
-                    "INSERT INTO `spider_douyin_crawl_job` "
+                    "INSERT INTO `spider_tiktok_crawl_job` "
                     "(job_id, job_type, parameters, status) VALUES (%s, %s, %s, 'pending')",
                     (
                         job_id,
@@ -339,7 +339,7 @@ class SpiderDouyinRepository:
             cursor = await conn.cursor()
             try:
                 await cursor.execute(
-                    "SELECT * FROM `spider_douyin_crawl_job` WHERE `job_id` = %s",
+                    "SELECT * FROM `spider_tiktok_crawl_job` WHERE `job_id` = %s",
                     (job_id,),
                 )
                 row = await cursor.fetchone()
@@ -379,7 +379,7 @@ class SpiderDouyinRepository:
                 set_sql = ", ".join(set_clauses)
                 params.append(job_id)
                 await cursor.execute(
-                    f"UPDATE `spider_douyin_crawl_job` SET {set_sql} WHERE `job_id` = %s",
+                    f"UPDATE `spider_tiktok_crawl_job` SET {set_sql} WHERE `job_id` = %s",
                     params,
                 )
                 await conn.commit()
@@ -398,7 +398,7 @@ class SpiderDouyinRepository:
             cursor = await conn.cursor()
             try:
                 await cursor.execute(
-                    "UPDATE `spider_douyin_crawl_job` "
+                    "UPDATE `spider_tiktok_crawl_job` "
                     "SET `completed_notes` = %s, `status` = 'running' "
                     "WHERE `job_id` = %s AND `status` = 'running'",
                     (completed_notes, job_id),
@@ -416,7 +416,7 @@ class SpiderDouyinRepository:
             cursor = await conn.cursor()
             try:
                 await cursor.execute(
-                    "UPDATE `spider_douyin_crawl_job` "
+                    "UPDATE `spider_tiktok_crawl_job` "
                     "SET `status` = 'completed', `total_notes` = %s, "
                     "`completed_notes` = %s, `completed_at` = NOW() "
                     "WHERE `job_id` = %s",
@@ -435,7 +435,7 @@ class SpiderDouyinRepository:
             cursor = await conn.cursor()
             try:
                 await cursor.execute(
-                    "UPDATE `spider_douyin_crawl_job` "
+                    "UPDATE `spider_tiktok_crawl_job` "
                     "SET `status` = 'failed', `error_message` = %s, "
                     "`completed_notes` = %s, `completed_at` = NOW() "
                     "WHERE `job_id` = %s",
@@ -452,7 +452,7 @@ class SpiderDouyinRepository:
             cursor = await conn.cursor()
             try:
                 await cursor.execute(
-                    "SELECT * FROM `spider_douyin_crawl_job` "
+                    "SELECT * FROM `spider_tiktok_crawl_job` "
                     "WHERE `status` = 'pending' "
                     "ORDER BY `created_at` ASC LIMIT %s",
                     (limit,),
@@ -475,7 +475,7 @@ class SpiderDouyinRepository:
             cursor = await conn.cursor()
             try:
                 await cursor.execute(
-                    "INSERT INTO `spider_douyin_client` "
+                    "INSERT INTO `spider_tiktok_client` "
                     "(client_id, client_key, permissions) VALUES (%s, %s, %s)",
                     (
                         client_id,
@@ -496,7 +496,7 @@ class SpiderDouyinRepository:
             cursor = await conn.cursor()
             try:
                 await cursor.execute(
-                    "SELECT `is_active` FROM `spider_douyin_client` "
+                    "SELECT `is_active` FROM `spider_tiktok_client` "
                     "WHERE `client_id` = %s AND `client_key` = %s",
                     (client_id, client_key),
                 )
@@ -511,7 +511,7 @@ class SpiderDouyinRepository:
             cursor = await conn.cursor()
             try:
                 await cursor.execute(
-                    "SELECT * FROM `spider_douyin_client` WHERE `client_id` = %s",
+                    "SELECT * FROM `spider_tiktok_client` WHERE `client_id` = %s",
                     (client_id,),
                 )
                 row = await cursor.fetchone()

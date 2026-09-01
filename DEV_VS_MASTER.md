@@ -9,10 +9,10 @@
 **dev**: 新增 MySQL 存储支持，包含以下能力：
 
 - 完整的数据库 Schema（`sql/init_mysql.sql`），包含 4 张表：
-  - `spider_douyin_note` — 作品数据
-  - `spider_douyin_note_snapshot` — 数值快照
-  - `spider_douyin_crawl_job` — 异步任务
-  - `spider_douyin_client` — API 客户端
+  - `spider_tiktok_note` — 作品数据
+  - `spider_tiktok_note_snapshot` — 数值快照
+  - `spider_tiktok_crawl_job` — 异步任务
+  - `spider_tiktok_client` — API 客户端
 - 通过 `DATABASE_URL` 环境变量配置数据库连接（连接字符串格式：`mysql+aiomysql://user:pass@host:port/db`）
 - `src/storage/mysql.py` — MySQL 存储层
 - `src/storage/spider_repository.py` — 数据访问层
@@ -54,7 +54,7 @@
 
 **master**: 同步执行爬取操作。
 
-**dev**: 内置后台爬取 Worker（`src/application/crawl_worker.py`），从 MySQL 的 `spider_douyin_crawl_job` 表中轮取 pending 任务并执行，支持 `search`、`account`、`detail`、`mix` 四种任务类型。
+**dev**: 内置后台爬取 Worker（`src/application/crawl_worker.py`），从 MySQL 的 `spider_tiktok_crawl_job` 表中轮取 pending 任务并执行，支持 `search`、`account`、`detail`、`mix` 四种任务类型。
 
 ## 5. Spider_XHS 兼容 API
 

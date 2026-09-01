@@ -790,7 +790,7 @@ class APIServer(TikTok):
             mysql_port = getattr(self.parameter, "mysql_port", 3306)
             mysql_user = getattr(self.parameter, "mysql_user", "root")
             mysql_password = getattr(self.parameter, "mysql_password", "")
-            mysql_database = getattr(self.parameter, "mysql_database", "spider_douyin")
+            mysql_database = getattr(self.parameter, "mysql_database", "spider_tiktok")
 
             self._spider_repository = SpiderDouyinRepository(
                 host=mysql_host,

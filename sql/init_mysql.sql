@@ -1,7 +1,7 @@
 -- TikTokDownloader MySQL Schema
--- 用于存储爬取的抖音数据
+-- 用于存储爬取的 TikTok 数据
 
-CREATE DATABASE IF NOT EXISTS `spider_douyin`
+CREATE DATABASE IF NOT EXISTS `spider_tiktok`
     DEFAULT CHARACTER SET utf8mb4
     DEFAULT COLLATE utf8mb4_unicode_ci;
 

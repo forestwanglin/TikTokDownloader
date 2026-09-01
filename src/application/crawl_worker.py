@@ -13,7 +13,7 @@ class CrawlWorker:
 
     持续从 MySQL 的 crawl_job 表中拉取 pending 状态的任务，
     调用 TikTokDownloader 的爬虫接口执行爬取，
-    将结果写入 spider_douyin_note 和 spider_douyin_note_snapshot 表。
+    将结果写入 spider_tiktok_note 和 spider_tiktok_note_snapshot 表。
     """
 
     def __init__(
