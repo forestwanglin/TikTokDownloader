@@ -109,34 +109,55 @@ class TikTok:
         self.run_command = None
         self.parameter = parameter
         self.database = database
-        self.console = parameter.console
-        self.logger = parameter.logger
+        if parameter is None:
+            from types import SimpleNamespace
+
+            self.console = None
+            self.logger = None
+            self._fake_param = SimpleNamespace(
+                console=self.console,
+                logger=self.logger,
+                storage_format="",
+                settings={},
+                accounts_urls=[],
+                accounts_urls_tiktok=[],
+                mix_urls=[],
+                mix_urls_tiktok=[],
+                owner_url={},
+                owner_url_tiktok=None,
+                name_format="",
+                ffmpeg=SimpleNamespace(state=False),
+            )
+        else:
+            self.console = (self._fake_param or parameter).console
+            self.logger = (self._fake_param or parameter).logger
+            self._fake_param = None
         API.init_progress_object(
             server_mode,
         )
-        self.links = LinkExtractor(parameter)
-        self.links_tiktok = ExtractorTikTok(parameter)
+        self.links = LinkExtractor((self._fake_param or parameter))
+        self.links_tiktok = ExtractorTikTok((self._fake_param or parameter))
         self.downloader = Downloader(
-            parameter,
+            (self._fake_param or parameter),
             server_mode,
         )
-        self.extractor = Extractor(parameter)
-        self.storage = bool(parameter.storage_format)
+        self.extractor = Extractor((self._fake_param or parameter))
+        self.storage = bool((self._fake_param or parameter).storage_format)
         self.record = RecordManager()
-        self.settings = parameter.settings
-        self.accounts = parameter.accounts_urls
-        self.accounts_tiktok = parameter.accounts_urls_tiktok
-        self.mix = parameter.mix_urls
-        self.mix_tiktok = parameter.mix_urls_tiktok
-        self.owner = parameter.owner_url
-        self.owner_tiktok = parameter.owner_url_tiktok
+        self.settings = (self._fake_param or parameter).settings
+        self.accounts = (self._fake_param or parameter).accounts_urls
+        self.accounts_tiktok = (self._fake_param or parameter).accounts_urls_tiktok
+        self.mix = (self._fake_param or parameter).mix_urls
+        self.mix_tiktok = (self._fake_param or parameter).mix_urls_tiktok
+        self.owner = (self._fake_param or parameter).owner_url
+        self.owner_tiktok = (self._fake_param or parameter).owner_url_tiktok
         self.running = True
-        self.ffmpeg = parameter.ffmpeg.state
+        self.ffmpeg = (self._fake_param or parameter).ffmpeg.state
         self.cache = Cache(
-            parameter,
+            (self._fake_param or parameter),
             self.database,
-            "mark" in parameter.name_format,
-            "nickname" in parameter.name_format,
+            "mark" in (self._fake_param or parameter).name_format,
+            "nickname" in (self._fake_param or parameter).name_format,
         )
         self.__function = (
             (

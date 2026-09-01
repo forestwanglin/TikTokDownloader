@@ -49,7 +49,7 @@ def _build_app() -> APIServer:
     server_instance.mysql_port = int(os.getenv("MYSQL_PORT", "3306"))
     server_instance.mysql_user = os.getenv("MYSQL_USER", "root")
     server_instance.mysql_password = os.getenv("MYSQL_PASSWORD", "")
-    server_instance.mysql_database = os.getenv("MYSQL_DATABASE", "spider_douyin")
+    server_instance.mysql_database = os.getenv("MYSQL_DATABASE", "spider_tiktok")
     return server_instance
 
 
