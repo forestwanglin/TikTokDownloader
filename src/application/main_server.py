@@ -64,7 +64,18 @@ class APIServer(TikTok):
             database,
             server_mode,
         )
-        self.server = None
+        self._setup_routes_sync()
+
+    def _setup_routes_sync(self):
+        """同步创建 FastAPI 实例并注册路由（供 server.py 使用）。"""
+        self.server = FastAPI(
+            debug=VERSION_BETA,
+            title="DouK-Downloader",
+            version=__VERSION__,
+        )
+        self.setup_routes()
+        self._setup_spider_routes()
+        self._setup_crawl_worker()
 
     async def handle_redirect(self, text: str, proxy: str = None) -> str:
         return await self.links.run(
@@ -86,13 +97,6 @@ class APIServer(TikTok):
         port=SERVER_PORT,
         log_level="info",
     ):
-        self.server = FastAPI(
-            debug=VERSION_BETA,
-            title="DouK-Downloader",
-            version=__VERSION__,
-        )
-        self.setup_routes()
-        self._setup_spider_routes()
         # 启动后台 Worker
         self._crawl_worker = None
         self._setup_crawl_worker()
@@ -785,12 +789,22 @@ class APIServer(TikTok):
         try:
             from .spider_api import setup_spider_routes
 
-            # 从 Parameter 获取 MySQL 连接参数
-            mysql_host = getattr(self.parameter, "mysql_host", "127.0.0.1")
-            mysql_port = getattr(self.parameter, "mysql_port", 3306)
-            mysql_user = getattr(self.parameter, "mysql_user", "root")
-            mysql_password = getattr(self.parameter, "mysql_password", "")
-            mysql_database = getattr(self.parameter, "mysql_database", "spider_tiktok")
+            # 从 Parameter 或 APIServer 实例获取 MySQL 连接参数
+            mysql_host = getattr(self.parameter, "mysql_host", None) or getattr(
+                self, "mysql_host", "127.0.0.1"
+            )
+            mysql_port = getattr(self.parameter, "mysql_port", None) or getattr(
+                self, "mysql_port", 3306
+            )
+            mysql_user = getattr(self.parameter, "mysql_user", None) or getattr(
+                self, "mysql_user", "root"
+            )
+            mysql_password = getattr(self.parameter, "mysql_password", None) or getattr(
+                self, "mysql_password", ""
+            )
+            mysql_database = getattr(self.parameter, "mysql_database", None) or getattr(
+                self, "mysql_database", "spider_tiktok"
+            )
 
             self._spider_repository = SpiderDouyinRepository(
                 host=mysql_host,

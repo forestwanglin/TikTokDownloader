@@ -9,3 +9,5 @@ __pycache__/
 
 # Local environment config (not tracked in git)
 .env
+.env.*
+!.env.example
